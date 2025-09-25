@@ -1,0 +1,414 @@
+<!DOCTYPE HTML>
+<html lang="zh-cn" class="rust" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>输入输出 - C 基础教程</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="home.html"><strong aria-hidden="true">1.</strong> Home</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">2.</strong> C语言入门</div></li><li><ol class="section"><li class="chapter-item expanded "><a href="week1-学习要求.html"><strong aria-hidden="true">2.1.</strong> 学习介绍</a></li><li class="chapter-item expanded "><a href="week2-输入输出.html" class="active"><strong aria-hidden="true">2.2.</strong> 输入输出</a></li><li class="chapter-item expanded "><a href="week3-运算符.html"><strong aria-hidden="true">2.3.</strong> 运算符</a></li><li class="chapter-item expanded "><a href="week4-条件判断.html"><strong aria-hidden="true">2.4.</strong> 条件判断</a></li><li class="chapter-item expanded "><a href="week5-循环.html"><strong aria-hidden="true">2.5.</strong> 循环</a></li><li class="chapter-item expanded "><a href="week6-数组.html"><strong aria-hidden="true">2.6.</strong> 数组</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">C 基础教程</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="输入与输出"><a class="header" href="#输入与输出">输入与输出</a></h1>
+<h2 id="基本数据类型"><a class="header" href="#基本数据类型">基本数据类型</a></h2>
+<ul>
+<li><strong>字符 (char)</strong>: 用单引号包围的单个字符，例如 <code>'c'</code>, <code>'1'</code>。</li>
+<li><strong>整数 (int)</strong>: 包括负整数、零和正整数，例如 <code>-10</code>, <code>0</code>, <code>100</code>。</li>
+<li><strong>浮点数 (float)</strong>: 带小数点的数字，例如 <code>3.14</code>, <code>-0.001</code>。通常精度为6-7位有效数字。</li>
+<li><strong>双精度浮点数 (double)</strong>: 精度和范围比 <code>float</code> 更高的小数，例如 <code>3.141592653589793</code>。</li>
+</ul>
+<h2 id="其它数据类型"><a class="header" href="#其它数据类型">其它数据类型</a></h2>
+<ul>
+<li><strong>空类型 (void)</strong>: 表示无类型，常用于函数返回值或指针。</li>
+<li><strong>数组类型</strong>: 存储一组相同类型数据的集合。</li>
+<li><strong>结构体类型</strong>: 用户自定义的数据类型，可以包含不同类型的数据。</li>
+<li><strong>指针类型</strong>: 存储变量内存地址的数据类型。</li>
+</ul>
+<h2 id="c语言基本数据类型存储大小与值范围"><a class="header" href="#c语言基本数据类型存储大小与值范围">C语言基本数据类型存储大小与值范围</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>数据类型</th><th>存储大小（字节）</th><th>取值范围</th></tr></thead><tbody>
+<tr><td>char</td><td>1</td><td>-128 ~ 127 或 0 ~ 255</td></tr>
+<tr><td>short</td><td>2</td><td>-32,768 ~ 32,767</td></tr>
+<tr><td>int</td><td>4</td><td>-2,147,483,648 ~ 2,147,483,647</td></tr>
+<tr><td>long</td><td>4 或 8</td><td>-2,147,483,648 ~ 2,147,483,647 或更大</td></tr>
+<tr><td>float</td><td>4</td><td>约 3.4E-38 ~ 3.4E+38</td></tr>
+<tr><td>double</td><td>8</td><td>约 1.7E-308 ~ 1.7E+308</td></tr>
+</tbody></table>
+</div>
+<h2 id="变量"><a class="header" href="#变量">变量</a></h2>
+<p>变量可以理解为一个存储数据的容器（盒子），给这个容器一个名字，就是变量名。</p>
+<p>容器的名称可以自己定义，容器中存储的内容也可以随时改变。</p>
+<h3 id="定义变量"><a class="header" href="#定义变量">定义变量</a></h3>
+<p>在使用变量之前，需要先声明它的类型和名称。可以在声明时初始化变量。</p>
+<pre><code class="language-c">// 声明并初始化整型变量
+int age = 16;
+int math = 85;
+int chinese = 88;
+int english = 99;
+
+// 声明并初始化字符型变量
+char isChinese = 'Y';
+char isJapanese = 'N';
+
+// 声明并初始化浮点型变量
+float shengao = 1.80f; // 也可以写成 1.80
+float height = 1.80f;
+float weight = 65.8f;
+float pi = 3.14159f;
+</code></pre>
+<h2 id="格式化输出-printf"><a class="header" href="#格式化输出-printf">格式化输出 printf</a></h2>
+<p><code>printf</code> 是 C 语言中用于输出信息到屏幕的标准库函数，定义在 <code>&lt;stdio.h&gt;</code> 头文件中。它支持格式化输出字符串和变量的值。</p>
+<h3 id="基本语法"><a class="header" href="#基本语法">基本语法</a></h3>
+<pre><code class="language-c">printf(&quot;格式字符串&quot;, 变量1, 变量2, ...);
+</code></pre>
+<h3 id="常用格式符"><a class="header" href="#常用格式符">常用格式符</a></h3>
+<ul>
+<li><code>%d</code>：输出十进制整数</li>
+<li><code>%f</code>：输出浮点数</li>
+<li><code>%c</code>：输出单个字符</li>
+<li><code>%s</code>：输出字符串</li>
+<li><code>%.2f</code>: 输出浮点数，保留两位小数</li>
+<li><code>%5d</code>: 输出整数，至少占5个字符宽度，右对齐</li>
+</ul>
+<h3 id="示例"><a class="header" href="#示例">示例</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int age = 18;
+    float height = 1.75f;
+    char sex = 'M';
+    char name[] = &quot;张三&quot;;
+    
+    printf(&quot;我的姓名：%s\n&quot;, name);
+    printf(&quot;我的年龄：%d\n&quot;, age);
+    printf(&quot;我的身高：%.2f米\n&quot;, height);
+    printf(&quot;我的性别：%c\n&quot;, sex);
+    printf(&quot;打个招呼：%s\n&quot;, &quot;Hello, How are you?&quot;);
+    
+    // 格式化输出示例
+    int number = 42;
+    printf(&quot;数字(默认)：%d\n&quot;, number);
+    printf(&quot;数字(5位宽)：%5d\n&quot;, number);
+    printf(&quot;数字(前导0)：%05d\n&quot;, number);
+    
+    float price = 123.456f;
+    printf(&quot;价格(默认)：%f\n&quot;, price);
+    printf(&quot;价格(保留2位小数)：%.2f\n&quot;, price);
+    printf(&quot;价格(总宽10,保留2位小数)：%10.2f\n&quot;, price);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>我的姓名：张三
+我的年龄：18
+我的身高：1.75米
+我的性别：M
+打个招呼：Hello, How are you?
+数字(默认)：42
+数字(5位宽)：   42
+数字(前导0)：00042
+价格(默认)：123.456001
+价格(保留2位小数)：123.46
+价格(总宽10,保留2位小数)：    123.46
+</code></pre>
+<h2 id="定义字符串并输出"><a class="header" href="#定义字符串并输出">定义字符串并输出</a></h2>
+<p>在 C 语言中，可以使用字符数组来定义字符串，并通过 <code>printf</code> 和 <code>%s</code> 格式符输出：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    // 定义并初始化字符数组（字符串）
+    char greeting[] = &quot;你好，欢迎学习C语言！&quot;;
+    char course[] = &quot;C语言基础&quot;;
+    
+    printf(&quot;%s\n&quot;, greeting);
+    printf(&quot;当前学习课程：%s\n&quot;, course);
+    
+    // 定义固定长度的字符数组
+    char message[50] = &quot;祝学习愉快！&quot;;
+    printf(&quot;祝福语：%s\n&quot;, message);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>你好，欢迎学习C语言！
+当前学习课程：C语言基础
+祝福语：祝学习愉快！
+</code></pre>
+<p><a href="references/printf.pdf">Printf.pdf</a></p>
+<h2 id="格式化输入-scanf"><a class="header" href="#格式化输入-scanf">格式化输入 scanf</a></h2>
+<p><code>scanf</code> 是 C 语言中用于从标准输入（通常是键盘）读取数据的标准库函数，定义在 <code>&lt;stdio.h&gt;</code> 头文件中。它可以读取不同格式的数据并存储到变量中。</p>
+<h3 id="基本语法-1"><a class="header" href="#基本语法-1">基本语法</a></h3>
+<pre><code class="language-c">scanf(&quot;格式字符串&quot;, &amp;变量1, &amp;变量2, ...);
+</code></pre>
+<p><strong>注意</strong>：对于基本数据类型（如 <code>int</code>, <code>float</code>, <code>char</code>）的变量，在变量名前需要加 <code>&amp;</code>（取地址运算符），表示将输入的数据存储到该变量的内存地址中。对于字符数组（字符串），则不需要 <code>&amp;</code>。</p>
+<h3 id="示例1输入年龄和身高"><a class="header" href="#示例1输入年龄和身高">示例1：输入年龄和身高</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int age;
+    float height;
+    
+    printf(&quot;请输入你的年龄和身高（用空格分隔）：&quot;);
+    scanf(&quot;%d %f&quot;, &amp;age, &amp;height);
+    
+    printf(&quot;你的年龄是：%d岁，身高是：%.2f米\n&quot;, age, height);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输入示例:</strong> <code>20 1.75</code>
+<strong>输出结果:</strong> <code>你的年龄是：20岁，身高是：1.75米</code></p>
+<h3 id="示例2输入姓名性别和成绩"><a class="header" href="#示例2输入姓名性别和成绩">示例2：输入姓名、性别和成绩</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    char name[20];
+    char gender;
+    float score;
+    
+    printf(&quot;请输入你的姓名（不含空格）、性别（M/F）和成绩（用空格分隔）：&quot;);
+    scanf(&quot;%s %c %f&quot;, name, &amp;gender, &amp;score);
+    
+    printf(&quot;学生信息：姓名=%s, 性别=%c, 成绩=%.1f\n&quot;, name, gender, score);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输入示例:</strong> <code>李四 M 95.5</code>
+<strong>输出结果:</strong> <code>学生信息：姓名=李四, 性别=M, 成绩=95.5</code></p>
+<h3 id="示例3输入多个整数"><a class="header" href="#示例3输入多个整数">示例3：输入多个整数</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a, b, c;
+    
+    printf(&quot;请输入三个整数（用空格分隔）：&quot;);
+    scanf(&quot;%d %d %d&quot;, &amp;a, &amp;b, &amp;c);
+    
+    printf(&quot;你输入的三个数分别是：%d, %d, %d\n&quot;, a, b, c);
+    printf(&quot;它们的和是：%d\n&quot;, a + b + c);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输入示例:</strong> <code>10 20 30</code>
+<strong>输出结果:</strong> </p>
+<pre><code>你输入的三个数分别是：10, 20, 30
+它们的和是：60
+</code></pre>
+<p><a href="references/scanf.pdf">Scanf.pdf</a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="week1-学习要求.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="week3-运算符.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="week1-学习要求.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="week3-运算符.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

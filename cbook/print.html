@@ -1,0 +1,1431 @@
+<!DOCTYPE HTML>
+<html lang="zh-cn" class="rust" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>C 基础教程</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="home.html"><strong aria-hidden="true">1.</strong> Home</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">2.</strong> C语言入门</div></li><li><ol class="section"><li class="chapter-item expanded "><a href="week1-学习要求.html"><strong aria-hidden="true">2.1.</strong> 学习介绍</a></li><li class="chapter-item expanded "><a href="week2-输入输出.html"><strong aria-hidden="true">2.2.</strong> 输入输出</a></li><li class="chapter-item expanded "><a href="week3-运算符.html"><strong aria-hidden="true">2.3.</strong> 运算符</a></li><li class="chapter-item expanded "><a href="week4-条件判断.html"><strong aria-hidden="true">2.4.</strong> 条件判断</a></li><li class="chapter-item expanded "><a href="week5-循环.html"><strong aria-hidden="true">2.5.</strong> 循环</a></li><li class="chapter-item expanded "><a href="week6-数组.html"><strong aria-hidden="true">2.6.</strong> 数组</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">C 基础教程</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="c-语言简介"><a class="header" href="#c-语言简介">C 语言简介</a></h1>
+<p>C语言是一个通用编程语言，已经广泛应用50多年，它功能强大，可以用来开发操作系统，数据库，应用软件等</p>
+<h2 id="安装编译环境"><a class="header" href="#安装编译环境">安装编译环境</a></h2>
+<p>pc.qq.com</p>
+<p>搜索 dev-cpp 下载安装</p>
+<h2 id="学习网站"><a class="header" href="#学习网站">学习网站</a></h2>
+<p><a href="www.runoob.com">菜鸟教程</a></p>
+<h2 id="目录"><a class="header" href="#目录">目录</a></h2>
+<ul>
+<li><a href="week1-%E5%AD%A6%E4%B9%A0%E8%A6%81%E6%B1%82.html">第一周-校考介绍</a></li>
+<li><a href="week2-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA.html">第二周-输入输出</a></li>
+<li><a href="week3-%E8%BF%90%E7%AE%97%E7%AC%A6.html">第三周-运算符</a></li>
+<li><a href="week4-%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD.html">第四周-条件判断</a></li>
+<li><a href="week5-%E5%BE%AA%E7%8E%AF.html">第五周-循环</a></li>
+<li><a href="week6-%E6%95%B0%E7%BB%84.html">第六周-数组</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="自主招生考试介绍"><a class="header" href="#自主招生考试介绍">自主招生考试介绍</a></h1>
+<p><code>成绩 =  高考成绩*50% + 自召成绩*1.8 + (计算机一级证书)35</code></p>
+<h2 id="相关学校"><a class="header" href="#相关学校">相关学校</a></h2>
+<ul>
+<li>城建学院</li>
+<li>白云学院</li>
+<li>华立学院</li>
+</ul>
+<h2 id="相关专业"><a class="header" href="#相关专业">相关专业</a></h2>
+<ul>
+<li>计算机科学与技术</li>
+<li>软件应用</li>
+<li>物联网</li>
+<li>人工智能</li>
+<li>...</li>
+</ul>
+<h2 id="学习安排"><a class="header" href="#学习安排">学习安排</a></h2>
+<ul>
+<li>2-10   C语言</li>
+<li>11-20  Python</li>
+</ul>
+<h2 id="软件与资源"><a class="header" href="#软件与资源">软件与资源</a></h2>
+<ul>
+<li>dev-c++</li>
+<li><a href="www.runoob.com">菜鸟教程</a></li>
+</ul>
+<h2 id="简单c语言程序"><a class="header" href="#简单c语言程序">简单C语言程序</a></h2>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(){
+  printf(&quot;hello 你好\n&quot;);
+  return 0;
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="输入与输出"><a class="header" href="#输入与输出">输入与输出</a></h1>
+<h2 id="基本数据类型"><a class="header" href="#基本数据类型">基本数据类型</a></h2>
+<ul>
+<li><strong>字符 (char)</strong>: 用单引号包围的单个字符，例如 <code>'c'</code>, <code>'1'</code>。</li>
+<li><strong>整数 (int)</strong>: 包括负整数、零和正整数，例如 <code>-10</code>, <code>0</code>, <code>100</code>。</li>
+<li><strong>浮点数 (float)</strong>: 带小数点的数字，例如 <code>3.14</code>, <code>-0.001</code>。通常精度为6-7位有效数字。</li>
+<li><strong>双精度浮点数 (double)</strong>: 精度和范围比 <code>float</code> 更高的小数，例如 <code>3.141592653589793</code>。</li>
+</ul>
+<h2 id="其它数据类型"><a class="header" href="#其它数据类型">其它数据类型</a></h2>
+<ul>
+<li><strong>空类型 (void)</strong>: 表示无类型，常用于函数返回值或指针。</li>
+<li><strong>数组类型</strong>: 存储一组相同类型数据的集合。</li>
+<li><strong>结构体类型</strong>: 用户自定义的数据类型，可以包含不同类型的数据。</li>
+<li><strong>指针类型</strong>: 存储变量内存地址的数据类型。</li>
+</ul>
+<h2 id="c语言基本数据类型存储大小与值范围"><a class="header" href="#c语言基本数据类型存储大小与值范围">C语言基本数据类型存储大小与值范围</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>数据类型</th><th>存储大小（字节）</th><th>取值范围</th></tr></thead><tbody>
+<tr><td>char</td><td>1</td><td>-128 ~ 127 或 0 ~ 255</td></tr>
+<tr><td>short</td><td>2</td><td>-32,768 ~ 32,767</td></tr>
+<tr><td>int</td><td>4</td><td>-2,147,483,648 ~ 2,147,483,647</td></tr>
+<tr><td>long</td><td>4 或 8</td><td>-2,147,483,648 ~ 2,147,483,647 或更大</td></tr>
+<tr><td>float</td><td>4</td><td>约 3.4E-38 ~ 3.4E+38</td></tr>
+<tr><td>double</td><td>8</td><td>约 1.7E-308 ~ 1.7E+308</td></tr>
+</tbody></table>
+</div>
+<h2 id="变量"><a class="header" href="#变量">变量</a></h2>
+<p>变量可以理解为一个存储数据的容器（盒子），给这个容器一个名字，就是变量名。</p>
+<p>容器的名称可以自己定义，容器中存储的内容也可以随时改变。</p>
+<h3 id="定义变量"><a class="header" href="#定义变量">定义变量</a></h3>
+<p>在使用变量之前，需要先声明它的类型和名称。可以在声明时初始化变量。</p>
+<pre><code class="language-c">// 声明并初始化整型变量
+int age = 16;
+int math = 85;
+int chinese = 88;
+int english = 99;
+
+// 声明并初始化字符型变量
+char isChinese = 'Y';
+char isJapanese = 'N';
+
+// 声明并初始化浮点型变量
+float shengao = 1.80f; // 也可以写成 1.80
+float height = 1.80f;
+float weight = 65.8f;
+float pi = 3.14159f;
+</code></pre>
+<h2 id="格式化输出-printf"><a class="header" href="#格式化输出-printf">格式化输出 printf</a></h2>
+<p><code>printf</code> 是 C 语言中用于输出信息到屏幕的标准库函数，定义在 <code>&lt;stdio.h&gt;</code> 头文件中。它支持格式化输出字符串和变量的值。</p>
+<h3 id="基本语法"><a class="header" href="#基本语法">基本语法</a></h3>
+<pre><code class="language-c">printf(&quot;格式字符串&quot;, 变量1, 变量2, ...);
+</code></pre>
+<h3 id="常用格式符"><a class="header" href="#常用格式符">常用格式符</a></h3>
+<ul>
+<li><code>%d</code>：输出十进制整数</li>
+<li><code>%f</code>：输出浮点数</li>
+<li><code>%c</code>：输出单个字符</li>
+<li><code>%s</code>：输出字符串</li>
+<li><code>%.2f</code>: 输出浮点数，保留两位小数</li>
+<li><code>%5d</code>: 输出整数，至少占5个字符宽度，右对齐</li>
+</ul>
+<h3 id="示例"><a class="header" href="#示例">示例</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int age = 18;
+    float height = 1.75f;
+    char sex = 'M';
+    char name[] = &quot;张三&quot;;
+    
+    printf(&quot;我的姓名：%s\n&quot;, name);
+    printf(&quot;我的年龄：%d\n&quot;, age);
+    printf(&quot;我的身高：%.2f米\n&quot;, height);
+    printf(&quot;我的性别：%c\n&quot;, sex);
+    printf(&quot;打个招呼：%s\n&quot;, &quot;Hello, How are you?&quot;);
+    
+    // 格式化输出示例
+    int number = 42;
+    printf(&quot;数字(默认)：%d\n&quot;, number);
+    printf(&quot;数字(5位宽)：%5d\n&quot;, number);
+    printf(&quot;数字(前导0)：%05d\n&quot;, number);
+    
+    float price = 123.456f;
+    printf(&quot;价格(默认)：%f\n&quot;, price);
+    printf(&quot;价格(保留2位小数)：%.2f\n&quot;, price);
+    printf(&quot;价格(总宽10,保留2位小数)：%10.2f\n&quot;, price);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>我的姓名：张三
+我的年龄：18
+我的身高：1.75米
+我的性别：M
+打个招呼：Hello, How are you?
+数字(默认)：42
+数字(5位宽)：   42
+数字(前导0)：00042
+价格(默认)：123.456001
+价格(保留2位小数)：123.46
+价格(总宽10,保留2位小数)：    123.46
+</code></pre>
+<h2 id="定义字符串并输出"><a class="header" href="#定义字符串并输出">定义字符串并输出</a></h2>
+<p>在 C 语言中，可以使用字符数组来定义字符串，并通过 <code>printf</code> 和 <code>%s</code> 格式符输出：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    // 定义并初始化字符数组（字符串）
+    char greeting[] = &quot;你好，欢迎学习C语言！&quot;;
+    char course[] = &quot;C语言基础&quot;;
+    
+    printf(&quot;%s\n&quot;, greeting);
+    printf(&quot;当前学习课程：%s\n&quot;, course);
+    
+    // 定义固定长度的字符数组
+    char message[50] = &quot;祝学习愉快！&quot;;
+    printf(&quot;祝福语：%s\n&quot;, message);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>你好，欢迎学习C语言！
+当前学习课程：C语言基础
+祝福语：祝学习愉快！
+</code></pre>
+<p><a href="references/printf.pdf">Printf.pdf</a></p>
+<h2 id="格式化输入-scanf"><a class="header" href="#格式化输入-scanf">格式化输入 scanf</a></h2>
+<p><code>scanf</code> 是 C 语言中用于从标准输入（通常是键盘）读取数据的标准库函数，定义在 <code>&lt;stdio.h&gt;</code> 头文件中。它可以读取不同格式的数据并存储到变量中。</p>
+<h3 id="基本语法-1"><a class="header" href="#基本语法-1">基本语法</a></h3>
+<pre><code class="language-c">scanf(&quot;格式字符串&quot;, &amp;变量1, &amp;变量2, ...);
+</code></pre>
+<p><strong>注意</strong>：对于基本数据类型（如 <code>int</code>, <code>float</code>, <code>char</code>）的变量，在变量名前需要加 <code>&amp;</code>（取地址运算符），表示将输入的数据存储到该变量的内存地址中。对于字符数组（字符串），则不需要 <code>&amp;</code>。</p>
+<h3 id="示例1输入年龄和身高"><a class="header" href="#示例1输入年龄和身高">示例1：输入年龄和身高</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int age;
+    float height;
+    
+    printf(&quot;请输入你的年龄和身高（用空格分隔）：&quot;);
+    scanf(&quot;%d %f&quot;, &amp;age, &amp;height);
+    
+    printf(&quot;你的年龄是：%d岁，身高是：%.2f米\n&quot;, age, height);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输入示例:</strong> <code>20 1.75</code>
+<strong>输出结果:</strong> <code>你的年龄是：20岁，身高是：1.75米</code></p>
+<h3 id="示例2输入姓名性别和成绩"><a class="header" href="#示例2输入姓名性别和成绩">示例2：输入姓名、性别和成绩</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    char name[20];
+    char gender;
+    float score;
+    
+    printf(&quot;请输入你的姓名（不含空格）、性别（M/F）和成绩（用空格分隔）：&quot;);
+    scanf(&quot;%s %c %f&quot;, name, &amp;gender, &amp;score);
+    
+    printf(&quot;学生信息：姓名=%s, 性别=%c, 成绩=%.1f\n&quot;, name, gender, score);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输入示例:</strong> <code>李四 M 95.5</code>
+<strong>输出结果:</strong> <code>学生信息：姓名=李四, 性别=M, 成绩=95.5</code></p>
+<h3 id="示例3输入多个整数"><a class="header" href="#示例3输入多个整数">示例3：输入多个整数</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a, b, c;
+    
+    printf(&quot;请输入三个整数（用空格分隔）：&quot;);
+    scanf(&quot;%d %d %d&quot;, &amp;a, &amp;b, &amp;c);
+    
+    printf(&quot;你输入的三个数分别是：%d, %d, %d\n&quot;, a, b, c);
+    printf(&quot;它们的和是：%d\n&quot;, a + b + c);
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输入示例:</strong> <code>10 20 30</code>
+<strong>输出结果:</strong> </p>
+<pre><code>你输入的三个数分别是：10, 20, 30
+它们的和是：60
+</code></pre>
+<p><a href="references/scanf.pdf">Scanf.pdf</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="运算符"><a class="header" href="#运算符">运算符</a></h1>
+<p>运算符是C语言中用于执行特定操作的符号。它们可以对一个或多个操作数进行操作，产生一个结果。</p>
+<h2 id="1-算术运算符"><a class="header" href="#1-算术运算符">1. 算术运算符</a></h2>
+<p>用于进行基本的数学计算。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>结果说明</th></tr></thead><tbody>
+<tr><td>+</td><td>加法</td><td>a + b</td><td>两数相加</td></tr>
+<tr><td>-</td><td>减法</td><td>a - b</td><td>两数相减</td></tr>
+<tr><td>*</td><td>乘法</td><td>a * b</td><td>两数相乘</td></tr>
+<tr><td>/</td><td>除法</td><td>a / b</td><td>两数相除（整数除法会截断小数部分）</td></tr>
+<tr><td>%</td><td>取余</td><td>a % b</td><td>两数相除的余数（仅适用于整数）</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 10, b = 3;
+    float x = 10.0f, y = 3.0f;
+    
+    printf(&quot;整数运算:\n&quot;);
+    printf(&quot;  %d + %d = %d\n&quot;, a, b, a + b); // 输出 13
+    printf(&quot;  %d - %d = %d\n&quot;, a, b, a - b); // 输出 7
+    printf(&quot;  %d * %d = %d\n&quot;, a, b, a * b); // 输出 30
+    printf(&quot;  %d / %d = %d (整数除法)\n&quot;, a, b, a / b); // 输出 3
+    printf(&quot;  %d %% %d = %d (取余)\n&quot;, a, b, a % b); // 输出 1
+    
+    printf(&quot;\n浮点数运算:\n&quot;);
+    printf(&quot;  %.1f / %.1f = %.2f (浮点除法)\n&quot;, x, y, x / y); // 输出 3.33
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>整数运算:
+  10 + 3 = 13
+  10 - 3 = 7
+  10 * 3 = 30
+  10 / 3 = 3 (整数除法)
+  10 % 3 = 1 (取余)
+
+浮点数运算:
+  10.0 / 3.0 = 3.33 (浮点除法)
+</code></pre>
+<h2 id="2-关系运算符"><a class="header" href="#2-关系运算符">2. 关系运算符</a></h2>
+<p>用于比较两个值的大小或相等关系，结果为真(非0)或假(0)。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>结果说明</th></tr></thead><tbody>
+<tr><td>&gt;</td><td>大于</td><td>a &gt; b</td><td>如果a大于b则为真</td></tr>
+<tr><td>&lt;</td><td>小于</td><td>a &lt; b</td><td>如果a小于b则为真</td></tr>
+<tr><td>&gt;=</td><td>大于等于</td><td>a &gt;= b</td><td>如果a大于等于b则为真</td></tr>
+<tr><td>&lt;=</td><td>小于等于</td><td>a &lt;= b</td><td>如果a小于等于b则为真</td></tr>
+<tr><td>==</td><td>等于</td><td>a == b</td><td>如果a等于b则为真</td></tr>
+<tr><td>!=</td><td>不等于</td><td>a != b</td><td>如果a不等于b则为真</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 5, b = 8;
+    
+    printf(&quot;关系运算示例:\n&quot;);
+    printf(&quot;  %d &gt; %d 的结果是: %d\n&quot;, a, b, a &gt; b);   // 输出 0 (假)
+    printf(&quot;  %d &lt; %d 的结果是: %d\n&quot;, a, b, a &lt; b);   // 输出 1 (真)
+    printf(&quot;  %d &gt;= %d 的结果是: %d\n&quot;, a, b, a &gt;= b); // 输出 0 (假)
+    printf(&quot;  %d &lt;= %d 的结果是: %d\n&quot;, a, b, a &lt;= b); // 输出 1 (真)
+    printf(&quot;  %d == %d 的结果是: %d\n&quot;, a, b, a == b); // 输出 0 (假)
+    printf(&quot;  %d != %d 的结果是: %d\n&quot;, a, b, a != b); // 输出 1 (真)
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>关系运算示例:
+  5 &gt; 8 的结果是: 0
+  5 &lt; 8 的结果是: 1
+  5 &gt;= 8 的结果是: 0
+  5 &lt;= 8 的结果是: 1
+  5 == 8 的结果是: 0
+  5 != 8 的结果是: 1
+</code></pre>
+<h2 id="3-逻辑运算符"><a class="header" href="#3-逻辑运算符">3. 逻辑运算符</a></h2>
+<p>用于组合或反转布尔表达式，结果为真(非0)或假(0)。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>结果说明</th></tr></thead><tbody>
+<tr><td>&amp;&amp;</td><td>逻辑与</td><td>a &amp;&amp; b</td><td>两个条件都为真时结果才为真</td></tr>
+<tr><td>||</td><td>逻辑或</td><td>a</td><td></td></tr>
+<tr><td>!</td><td>逻辑非</td><td>!a</td><td>反转条件的真假性</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 1, b = 0;
+    int score = 85;
+    
+    printf(&quot;逻辑运算示例:\n&quot;);
+    printf(&quot;  %d &amp;&amp; %d 的结果是: %d\n&quot;, a, b, a &amp;&amp; b); // 输出 0 (假)
+    printf(&quot;  %d || %d 的结果是: %d\n&quot;, a, b, a || b); // 输出 1 (真)
+    printf(&quot;  !%d 的结果是: %d\n&quot;, a, !a);             // 输出 0 (假)
+    
+    // 实际应用示例：判断成绩是否及格
+    if (score &gt;= 60 &amp;&amp; score &lt;= 100) {
+        printf(&quot;  成绩%d分，及格！\n&quot;, score);
+    } else {
+        printf(&quot;  成绩%d分，不及格！\n&quot;, score);
+    }
+    
+    // 判断是否是特殊分数
+    if (score == 100 || score == 0) {
+        printf(&quot;  成绩%d分，是特殊分数！\n&quot;, score);
+    }
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>逻辑运算示例:
+  1 &amp;&amp; 0 的结果是: 0
+  1 || 0 的结果是: 1
+  !1 的结果是: 0
+  成绩85分，及格！
+</code></pre>
+<h2 id="4-赋值运算符"><a class="header" href="#4-赋值运算符">4. 赋值运算符</a></h2>
+<p>用于给变量赋值或进行复合赋值操作。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>等价于</th></tr></thead><tbody>
+<tr><td>=</td><td>赋值</td><td>a = b</td><td>将b的值赋给a</td></tr>
+<tr><td>+=</td><td>加后赋值</td><td>a += b</td><td>a = a + b</td></tr>
+<tr><td>-=</td><td>减后赋值</td><td>a -= b</td><td>a = a - b</td></tr>
+<tr><td>*=</td><td>乘后赋值</td><td>a *= b</td><td>a = a * b</td></tr>
+<tr><td>/=</td><td>除后赋值</td><td>a /= b</td><td>a = a / b</td></tr>
+<tr><td>%=</td><td>取余后赋值</td><td>a %= b</td><td>a = a % b</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 5;
+    
+    printf(&quot;赋值运算示例:\n&quot;);
+    printf(&quot;  初始值 a = %d\n&quot;, a);
+    
+    a += 3; // 等价于 a = a + 3;
+    printf(&quot;  a += 3 后 a = %d\n&quot;, a); // 输出 8
+    
+    a *= 2; // 等价于 a = a * 2;
+    printf(&quot;  a *= 2 后 a = %d\n&quot;, a); // 输出 16
+    
+    a -= 6; // 等价于 a = a - 6;
+    printf(&quot;  a -= 6 后 a = %d\n&quot;, a); // 输出 10
+    
+    a /= 2; // 等价于 a = a / 2;
+    printf(&quot;  a /= 2 后 a = %d\n&quot;, a); // 输出 5
+    
+    a %= 3; // 等价于 a = a % 3;
+    printf(&quot;  a %%= 3 后 a = %d\n&quot;, a); // 输出 2
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>赋值运算示例:
+  初始值 a = 5
+  a += 3 后 a = 8
+  a *= 2 后 a = 16
+  a -= 6 后 a = 10
+  a /= 2 后 a = 5
+  a %= 3 后 a = 2
+</code></pre>
+<h2 id="运算符优先级"><a class="header" href="#运算符优先级">运算符优先级</a></h2>
+<p>当一个表达式中包含多个运算符时，它们按照一定的优先级顺序进行计算。以下是一些常见运算符的优先级（从高到低）：</p>
+<ol>
+<li><code>()</code>           括号</li>
+<li><code>!</code> <code>*</code> <code>/</code> <code>%</code> 逻辑非、乘、除、取余</li>
+<li><code>+</code> <code>-</code>        加、减</li>
+<li><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code> 关系运算符</li>
+<li><code>==</code> <code>!=</code>      相等运算符</li>
+<li><code>&amp;&amp;</code>           逻辑与</li>
+<li><code>||</code>           逻辑或</li>
+<li><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code> 赋值运算符</li>
+</ol>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 5, b = 3, c = 2;
+    int result;
+    
+    // 演示运算符优先级
+    result = a + b * c;     // 先算乘法，再算加法
+    printf(&quot;a + b * c = %d\n&quot;, result); // 输出 11
+    
+    result = (a + b) * c;   // 先算括号内的加法，再算乘法
+    printf(&quot;(a + b) * c = %d\n&quot;, result); // 输出 16
+    
+    // 复杂表达式示例
+    result = a &gt; b &amp;&amp; b &gt; c; // 先算关系运算，再算逻辑运算
+    printf(&quot;a &gt; b &amp;&amp; b &gt; c 的结果是: %d\n&quot;, result); // 输出 1 (真)
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>a + b * c = 11
+(a + b) * c = 16
+a &gt; b &amp;&amp; b &gt; c 的结果是: 1
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="条件判断"><a class="header" href="#条件判断">条件判断</a></h1>
+<p>在 C 语言中，条件判断语句用于根据不同的条件执行不同的代码。常用的条件判断语句有 <code>if</code>、<code>if...else</code>、<code>if...else if...else</code> 和 <code>switch</code>。</p>
+<h2 id="1-if-语句"><a class="header" href="#1-if-语句">1. if 语句</a></h2>
+<p><code>if</code> 语句用于判断条件是否成立，如果成立则执行对应的代码块。</p>
+<p><strong>语法：</strong></p>
+<pre><code class="language-c">if (条件) {
+    // 条件为真时执行的代码
+}
+</code></pre>
+<p><strong>示例：检查用户是否成年</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int age;
+    printf(&quot;请输入你的年龄: &quot;);
+    scanf(&quot;%d&quot;, &amp;age);
+    
+    if (age &gt;= 18) {
+        printf(&quot;你已成年。\n&quot;);
+    }
+    
+    return 0;
+}
+</code></pre>
+<p><strong>示例：判断数字正负</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int number;
+    printf(&quot;请输入一个整数: &quot;);
+    scanf(&quot;%d&quot;, &amp;number);
+    
+    if (number &gt; 0) {
+        printf(&quot;你输入的是正数。\n&quot;);
+    }
+    
+    if (number &lt; 0) {
+        printf(&quot;你输入的是负数。\n&quot;);
+    }
+    
+    if (number == 0) {
+        printf(&quot;你输入的是零。\n&quot;);
+    }
+    
+    return 0;
+}
+</code></pre>
+<h2 id="2-ifelse-语句"><a class="header" href="#2-ifelse-语句">2. if...else 语句</a></h2>
+<p><code>if...else</code> 语句用于条件成立和不成立时分别执行不同的代码块。</p>
+<p><strong>语法：</strong></p>
+<pre><code class="language-c">if (条件) {
+    // 条件为真时执行
+} else {
+    // 条件为假时执行
+}
+</code></pre>
+<p><strong>示例：判断成绩是否及格</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int score;
+    printf(&quot;请输入你的考试成绩: &quot;);
+    scanf(&quot;%d&quot;, &amp;score);
+    
+    if (score &gt;= 60) {
+        printf(&quot;恭喜你，及格了！\n&quot;);
+    } else {
+        printf(&quot;很遗憾，没有及格。\n&quot;);
+    }
+    
+    return 0;
+}
+</code></pre>
+<p><strong>示例：判断奇偶数</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int number;
+    printf(&quot;请输入一个整数: &quot;);
+    scanf(&quot;%d&quot;, &amp;number);
+    
+    if (number % 2 == 0) {
+        printf(&quot;%d 是偶数。\n&quot;, number);
+    } else {
+        printf(&quot;%d 是奇数。\n&quot;, number);
+    }
+    
+    return 0;
+}
+</code></pre>
+<h2 id="3-ifelse-ifelse-语句"><a class="header" href="#3-ifelse-ifelse-语句">3. if...else if...else 语句</a></h2>
+<p>用于多个条件的判断，每个条件都可以对应不同的代码块。</p>
+<p><strong>语法：</strong></p>
+<pre><code class="language-c">if (条件1) {
+    // 条件1为真时执行
+} else if (条件2) {
+    // 条件2为真时执行
+} else {
+    // 以上条件都不成立时执行
+}
+</code></pre>
+<p><strong>示例：判断成绩等级</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int score;
+    printf(&quot;请输入你的考试成绩: &quot;);
+    scanf(&quot;%d&quot;, &amp;score);
+    
+    if (score &gt;= 90) {
+        printf(&quot;成绩等级: 优秀\n&quot;);
+    } else if (score &gt;= 80) {
+        printf(&quot;成绩等级: 良好\n&quot;);
+    } else if (score &gt;= 60) {
+        printf(&quot;成绩等级: 及格\n&quot;);
+    } else {
+        printf(&quot;成绩等级: 不及格\n&quot;);
+    }
+    
+    return 0;
+}
+</code></pre>
+<p><strong>示例：根据年龄判断人生阶段</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int age;
+    printf(&quot;请输入你的年龄: &quot;);
+    scanf(&quot;%d&quot;, &amp;age);
+    
+    if (age &lt; 13) {
+        printf(&quot;你是儿童。\n&quot;);
+    } else if (age &lt; 20) {
+        printf(&quot;你是青少年。\n&quot;);
+    } else if (age &lt; 60) {
+        printf(&quot;你是成年人。\n&quot;);
+    } else {
+        printf(&quot;你是老年人。\n&quot;);
+    }
+    
+    return 0;
+}
+</code></pre>
+<h2 id="4-switch-语句"><a class="header" href="#4-switch-语句">4. switch 语句</a></h2>
+<p><code>switch</code> 语句用于对某个整型变量的值进行多分支判断。它比多个 <code>if...else if</code> 语句更清晰，尤其是当有大量离散值需要比较时。</p>
+<p><strong>语法：</strong></p>
+<pre><code class="language-c">switch (整型表达式) {
+    case 常量值1:
+        // 当表达式的值等于常量值1时执行
+        break; // 跳出switch语句
+    case 常量值2:
+        // 当表达式的值等于常量值2时执行
+        break;
+    ...
+    default:
+        // 以上都不匹配时执行
+        break; // 可选，但建议加上
+}
+</code></pre>
+<p><strong>注意事项：</strong></p>
+<ul>
+<li>每个 <code>case</code> 后面必须是一个常量值。</li>
+<li>每个 <code>case</code> 代码块结束后通常要加 <code>break</code> 语句，否则会继续执行下面的代码（称为“fall-through”）。</li>
+<li><code>default</code> 分支是可选的，当没有匹配的 <code>case</code> 时执行。</li>
+</ul>
+<p><strong>示例：根据数字输出星期几</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int day;
+    printf(&quot;请输入一个数字(1-7): &quot;);
+    scanf(&quot;%d&quot;, &amp;day);
+    
+    switch (day) {
+        case 1:
+            printf(&quot;星期一\n&quot;);
+            break;
+        case 2:
+            printf(&quot;星期二\n&quot;);
+            break;
+        case 3:
+            printf(&quot;星期三\n&quot;);
+            break;
+        case 4:
+            printf(&quot;星期四\n&quot;);
+            break;
+        case 5:
+            printf(&quot;星期五\n&quot;);
+            break;
+        case 6:
+            printf(&quot;星期六\n&quot;);
+            break;
+        case 7:
+            printf(&quot;星期日\n&quot;);
+            break;
+        default:
+            printf(&quot;输入错误，请输入1-7之间的数字。\n&quot;);
+            break;
+    }
+    
+    return 0;
+}
+</code></pre>
+<p><strong>示例：简单的计算器</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    char operator;
+    double num1, num2;
+    
+    printf(&quot;请输入运算符 (+, -, *, /): &quot;);
+    scanf(&quot; %c&quot;, &amp;operator); // 注意%c前有一个空格，用于忽略换行符
+    
+    printf(&quot;请输入两个数字: &quot;);
+    scanf(&quot;%lf %lf&quot;, &amp;num1, &amp;num2);
+    
+    switch (operator) {
+        case '+':
+            printf(&quot;%.2f + %.2f = %.2f\n&quot;, num1, num2, num1 + num2);
+            break;
+        case '-':
+            printf(&quot;%.2f - %.2f = %.2f\n&quot;, num1, num2, num1 - num2);
+            break;
+        case '*':
+            printf(&quot;%.2f * %.2f = %.2f\n&quot;, num1, num2, num1 * num2);
+            break;
+        case '/':
+            if (num2 != 0) {
+                printf(&quot;%.2f / %.2f = %.2f\n&quot;, num1, num2, num1 / num2);
+            } else {
+                printf(&quot;错误：除数不能为零！\n&quot;);
+            }
+            break;
+        default:
+            printf(&quot;错误：不支持的运算符 %c\n&quot;, operator);
+            break;
+    }
+    
+    return 0;
+}
+</code></pre>
+<h2 id="条件判断练习题"><a class="header" href="#条件判断练习题">条件判断练习题</a></h2>
+<ol>
+<li>
+<p><strong>判断年龄是否成年</strong><br />
+编写一个程序，输入一个人的年龄，如果年龄大于等于18岁，输出“已成年”，否则输出“未成年”。</p>
+</li>
+<li>
+<p><strong>判断考试成绩等级</strong><br />
+输入一个考试成绩，判断并输出成绩等级：</p>
+<ul>
+<li>90分及以上为“优秀”</li>
+<li>80分及以上为“良好”</li>
+<li>60分及以上为“及格”</li>
+<li>其他为“不及格”</li>
+</ul>
+</li>
+<li>
+<p><strong>判断奇偶数</strong><br />
+输入一个整数，判断它是奇数还是偶数，并输出结果。</p>
+</li>
+<li>
+<p><strong>星期几输出</strong><br />
+输入一个数字（1~7），用 switch 语句输出对应的星期几（如1输出“星期一”，2输出“星期二”，以此类推）。</p>
+</li>
+<li>
+<p><strong>判断字符类型</strong><br />
+输入一个字符，判断它是数字、字母还是其他字符，并输出结果。</p>
+<p><strong>提示：</strong> 可以使用ASCII码值进行判断。</p>
+<ul>
+<li>数字字符: '0' 到 '9'</li>
+<li>大写字母: 'A' 到 'Z'</li>
+<li>小写字母: 'a' 到 'z'</li>
+</ul>
+</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="循环语句"><a class="header" href="#循环语句">循环语句</a></h1>
+<p>在 C 语言中，循环语句用于让某段代码重复执行。常见的循环语句有 <code>while</code>、<code>do...while</code> 和 <code>for</code>。</p>
+<h2 id="1-while-循环"><a class="header" href="#1-while-循环">1. while 循环</a></h2>
+<p><code>while</code> 循环会在条件为真时重复执行循环体。如果条件一开始就是假，则循环体一次也不会执行。</p>
+<p><strong>语法：</strong></p>
+<pre><code class="language-c">while (条件) {
+    // 循环体
+}
+</code></pre>
+<p><strong>示例：输出1到5的数字</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int i = 1;
+    while (i &lt;= 5) {
+        printf(&quot;第%d次循环\n&quot;, i);
+        i++; // 更新条件，避免无限循环
+    }
+    return 0;
+}
+</code></pre>
+<p><strong>示例：计算1到10所有整数的和</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int i = 1;
+    int sum = 0;
+    
+    while (i &lt;= 10) {
+        sum += i; // 累加
+        i++;      // 更新计数器
+    }
+    
+    printf(&quot;1到10的和是: %d\n&quot;, sum);
+    return 0;
+}
+</code></pre>
+<h2 id="2-dowhile-循环"><a class="header" href="#2-dowhile-循环">2. do...while 循环</a></h2>
+<p><code>do...while</code> 循环至少执行一次循环体，然后在条件为真时继续执行。它与 <code>while</code> 循环的主要区别是条件判断在循环体执行之后。</p>
+<p><strong>语法：</strong></p>
+<pre><code class="language-c">do {
+    // 循环体
+} while (条件);
+</code></pre>
+<p><strong>示例：模拟用户输入密码</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int password;
+    
+    do {
+        printf(&quot;请输入密码(数字): &quot;);
+        scanf(&quot;%d&quot;, &amp;password);
+        
+        if (password != 123456) {
+            printf(&quot;密码错误，请重新输入。\n&quot;);
+        }
+    } while (password != 123456);
+    
+    printf(&quot;密码正确，欢迎登录！\n&quot;);
+    return 0;
+}
+</code></pre>
+<p><strong>示例：输出1到5的数字</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int i = 1;
+    do {
+        printf(&quot;第%d次循环\n&quot;, i);
+        i++;
+    } while (i &lt;= 5);
+    return 0;
+}
+</code></pre>
+<h2 id="3-for-循环"><a class="header" href="#3-for-循环">3. for 循环</a></h2>
+<p><code>for</code> 循环适合已知循环次数或有明确初始化、条件和更新操作的场景。它的结构使循环控制更加紧凑和清晰。</p>
+<p><strong>语法：</strong></p>
+<pre><code class="language-c">for (初始化; 条件; 更新) {
+    // 循环体
+}
+</code></pre>
+<p><strong>示例：输出1到5的数字</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    for (int i = 1; i &lt;= 5; i++) {
+        printf(&quot;第%d次循环\n&quot;, i);
+    }
+    return 0;
+}
+</code></pre>
+<p><strong>示例：计算1到10所有整数的和</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int sum = 0;
+    
+    for (int i = 1; i &lt;= 10; i++) {
+        sum += i;
+    }
+    
+    printf(&quot;1到10的和是: %d\n&quot;, sum);
+    return 0;
+}
+</code></pre>
+<p><strong>示例：输出10到1的倒计数</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    printf(&quot;倒计时开始:\n&quot;);
+    for (int i = 10; i &gt;= 1; i--) {
+        printf(&quot;%d &quot;, i);
+    }
+    printf(&quot;\n发射！\n&quot;);
+    return 0;
+}
+</code></pre>
+<h2 id="循环控制语句"><a class="header" href="#循环控制语句">循环控制语句</a></h2>
+<p>在循环中，可以使用 <code>break</code> 和 <code>continue</code> 语句来控制循环的执行。</p>
+<ul>
+<li><strong>break</strong>: 立即跳出当前循环，执行循环之后的代码。</li>
+<li><strong>continue</strong>: 跳过本次循环中剩余的语句，直接进入下一次循环的条件判断。</li>
+</ul>
+<p><strong>示例：使用 break</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    for (int i = 1; i &lt;= 10; i++) {
+        if (i == 5) {
+            break; // 当i等于5时，跳出循环
+        }
+        printf(&quot;i = %d\n&quot;, i);
+    }
+    printf(&quot;循环结束\n&quot;);
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>i = 1
+i = 2
+i = 3
+i = 4
+循环结束
+</code></pre>
+<p><strong>示例：使用 continue</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    for (int i = 1; i &lt;= 10; i++) {
+        if (i % 2 == 0) {
+            continue; // 跳过偶数
+        }
+        printf(&quot;i = %d\n&quot;, i);
+    }
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>i = 1
+i = 3
+i = 5
+i = 7
+i = 9
+</code></pre>
+<h2 id="有趣的练习题"><a class="header" href="#有趣的练习题">有趣的练习题</a></h2>
+<ol>
+<li>
+<p><strong>输出1到100所有偶数。</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main() {
+    for (int i = 1; i &lt;= 100; i++) {
+        if (i % 2 == 0) {
+            printf(&quot;%d &quot;, i);
+        }
+    }
+    printf(&quot;\n&quot;);
+    return 0;
+}
+</code></pre>
+</li>
+<li>
+<p><strong>计算1到100的所有整数的和。</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main() {
+    int sum = 0;
+    for (int i = 1; i &lt;= 100; i++) {
+        sum += i;
+    }
+    printf(&quot;1到100的和是: %d\n&quot;, sum);
+    return 0;
+}
+</code></pre>
+</li>
+<li>
+<p><strong>输入一个正整数，输出它的阶乘。</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main() {
+    int n;
+    long long factorial = 1; // 使用long long防止溢出
+    printf(&quot;请输入一个正整数: &quot;);
+    scanf(&quot;%d&quot;, &amp;n);
+    
+    for (int i = 1; i &lt;= n; i++) {
+        factorial *= i;
+    }
+    
+    printf(&quot;%d的阶乘是: %lld\n&quot;, n, factorial);
+    return 0;
+}
+</code></pre>
+</li>
+<li>
+<p><strong>打印九九乘法表。</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main() {
+    for (int i = 1; i &lt;= 9; i++) {
+        for (int j = 1; j &lt;= i; j++) {
+            printf(&quot;%d*%d=%-2d &quot;, j, i, i * j); // %-2d左对齐，占2位
+        }
+        printf(&quot;\n&quot;);
+    }
+    return 0;
+}
+</code></pre>
+</li>
+<li>
+<p><strong>输入一个整数，判断它是否为质数（素数）。</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+int main() {
+    int n, isPrime = 1; // 假设是质数
+    printf(&quot;请输入一个整数: &quot;);
+    scanf(&quot;%d&quot;, &amp;n);
+    
+    if (n &lt;= 1) {
+        isPrime = 0; // 小于等于1的数不是质数
+    } else {
+        for (int i = 2; i &lt;= sqrt(n); i++) {
+            if (n % i == 0) {
+                isPrime = 0; // 找到因数，不是质数
+                break;
+            }
+        }
+    }
+    
+    if (isPrime) {
+        printf(&quot;%d 是质数。\n&quot;, n);
+    } else {
+        printf(&quot;%d 不是质数。\n&quot;, n);
+    }
+    
+    return 0;
+}
+</code></pre>
+</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="数组"><a class="header" href="#数组">数组</a></h1>
+<p>在 C 语言中，数组是一组相同类型数据的集合，可以用一个名字和下标来访问每个元素。数组常用于存储和处理批量数据。</p>
+<h2 id="数组的定义和使用"><a class="header" href="#数组的定义和使用">数组的定义和使用</a></h2>
+<p><strong>定义语法：</strong></p>
+<pre><code class="language-c">类型 数组名[长度];
+</code></pre>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">int scores[5]; // 定义一个长度为5的整型数组
+float heights[10]; // 定义一个长度为10的浮点型数组
+char letters[26]; // 定义一个长度为26的字符型数组
+</code></pre>
+<p><strong>初始化数组：</strong>
+在定义数组时可以直接进行初始化。</p>
+<pre><code class="language-c">// 完全初始化
+int nums1[5] = {1, 2, 3, 4, 5};
+
+// 部分初始化，未指定的元素会被初始化为0
+int nums2[5] = {1, 2, 3};
+
+// 不指定长度，由初始化列表决定
+int nums3[] = {1, 2, 3, 4, 5}; // nums3的长度为5
+
+// 字符数组的特殊初始化方式
+char str1[] = &quot;Hello&quot;; // 等价于 {'H', 'e', 'l', 'l', 'o', '\0'}
+char str2[10] = &quot;Hello&quot;; // 剩余位置自动补'\0'
+</code></pre>
+<p><strong>访问数组元素：</strong>
+数组的下标从0开始。</p>
+<pre><code class="language-c">int arr[5] = {10, 20, 30, 40, 50};
+printf(&quot;第一个元素: %d\n&quot;, arr[0]); // 输出 10
+printf(&quot;第三个元素: %d\n&quot;, arr[2]); // 输出 30
+
+// 修改数组元素
+arr[1] = 25;
+printf(&quot;修改后的第二个元素: %d\n&quot;, arr[1]); // 输出 25
+</code></pre>
+<h2 id="结合-printfscanf判断和循环的例子"><a class="header" href="#结合-printfscanf判断和循环的例子">结合 printf、scanf、判断和循环的例子</a></h2>
+<h3 id="例1输入并输出一组整数"><a class="header" href="#例1输入并输出一组整数">例1：输入并输出一组整数</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int nums[5];
+    printf(&quot;请输入5个整数：\n&quot;);
+    for (int i = 0; i &lt; 5; i++) {
+        printf(&quot;请输入第%d个数: &quot;, i + 1);
+        scanf(&quot;%d&quot;, &amp;nums[i]);
+    }
+    
+    printf(&quot;你输入的整数是：&quot;);
+    for (int i = 0; i &lt; 5; i++) {
+        printf(&quot;%d &quot;, nums[i]);
+    }
+    printf(&quot;\n&quot;);
+    return 0;
+}
+</code></pre>
+<h3 id="例2统计数组中正数负数和零的个数"><a class="header" href="#例2统计数组中正数负数和零的个数">例2：统计数组中正数、负数和零的个数</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int nums[10];
+    int positive = 0, negative = 0, zero = 0;
+    
+    printf(&quot;请输入10个整数：\n&quot;);
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;请输入第%d个数: &quot;, i + 1);
+        scanf(&quot;%d&quot;, &amp;nums[i]);
+        
+        if (nums[i] &gt; 0) {
+            positive++;
+        } else if (nums[i] &lt; 0) {
+            negative++;
+        } else {
+            zero++;
+        }
+    }
+    
+    printf(&quot;正数的个数是：%d\n&quot;, positive);
+    printf(&quot;负数的个数是：%d\n&quot;, negative);
+    printf(&quot;零的个数是：%d\n&quot;, zero);
+    
+    return 0;
+}
+</code></pre>
+<h3 id="例3求数组元素的最大值和最小值"><a class="header" href="#例3求数组元素的最大值和最小值">例3：求数组元素的最大值和最小值</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int nums[10];
+    
+    printf(&quot;请输入10个整数：\n&quot;);
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;请输入第%d个数: &quot;, i + 1);
+        scanf(&quot;%d&quot;, &amp;nums[i]);
+    }
+    
+    // 假设第一个元素既是最大值也是最小值
+    int max = nums[0];
+    int min = nums[0];
+    
+    for (int i = 1; i &lt; 10; i++) {
+        if (nums[i] &gt; max) {
+            max = nums[i];
+        }
+        if (nums[i] &lt; min) {
+            min = nums[i];
+        }
+    }
+    
+    printf(&quot;最大值是：%d\n&quot;, max);
+    printf(&quot;最小值是：%d\n&quot;, min);
+    
+    return 0;
+}
+</code></pre>
+<h3 id="例4计算数组所有元素的总和和平均值"><a class="header" href="#例4计算数组所有元素的总和和平均值">例4：计算数组所有元素的总和和平均值</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int nums[10], sum = 0;
+    float average;
+    
+    printf(&quot;请输入10个整数：\n&quot;);
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;请输入第%d个数: &quot;, i + 1);
+        scanf(&quot;%d&quot;, &amp;nums[i]);
+        sum += nums[i];
+    }
+    
+    average = (float)sum / 10; // 强制类型转换为float以获得小数部分
+    
+    printf(&quot;总和是：%d\n&quot;, sum);
+    printf(&quot;平均值是：%.2f\n&quot;, average);
+    
+    return 0;
+}
+</code></pre>
+<h3 id="例5在数组中查找元素并返回下标"><a class="header" href="#例5在数组中查找元素并返回下标">例5：在数组中查找元素并返回下标</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int nums[10], find;
+    int index = -1; // -1表示未找到
+    
+    printf(&quot;请输入10个整数：\n&quot;);
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;请输入第%d个数: &quot;, i + 1);
+        scanf(&quot;%d&quot;, &amp;nums[i]);
+    }
+    
+    printf(&quot;请输入要查找的整数：&quot;);
+    scanf(&quot;%d&quot;, &amp;find);
+    
+    for (int i = 0; i &lt; 10; i++) {
+        if (nums[i] == find) {
+            index = i;
+            break;
+        }
+    }
+    
+    if (index != -1) {
+        printf(&quot;找到了！%d 在数组中的下标是 %d。\n&quot;, find, index);
+    } else {
+        printf(&quot;没找到 %d。\n&quot;, find);
+    }
+    
+    return 0;
+}
+</code></pre>
+<h3 id="例6数组元素逆序排列"><a class="header" href="#例6数组元素逆序排列">例6：数组元素逆序排列</a></h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int nums[10];
+    
+    printf(&quot;请输入10个整数：\n&quot;);
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;请输入第%d个数: &quot;, i + 1);
+        scanf(&quot;%d&quot;, &amp;nums[i]);
+    }
+    
+    printf(&quot;原数组: &quot;);
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;%d &quot;, nums[i]);
+    }
+    printf(&quot;\n&quot;);
+    
+    // 逆序: 交换对称位置的元素
+    for (int i = 0; i &lt; 10 / 2; i++) {
+        int temp = nums[i];
+        nums[i] = nums[9 - i];
+        nums[9 - i] = temp;
+    }
+    
+    printf(&quot;逆序后: &quot;);
+    for (int i = 0; i &lt; 10; i++) {
+        printf(&quot;%d &quot;, nums[i]);
+    }
+    printf(&quot;\n&quot;);
+    
+    return 0;
+}
+</code></pre>
+<h2 id="二维数组简介"><a class="header" href="#二维数组简介">二维数组简介</a></h2>
+<p>二维数组可以看作是一个表格，有行和列。</p>
+<p><strong>定义语法：</strong></p>
+<pre><code class="language-c">类型 数组名[行数][列数];
+</code></pre>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">int matrix[3][4]; // 定义一个3行4列的整型二维数组
+
+// 初始化二维数组
+int matrix2[2][3] = {{1, 2, 3}, {4, 5, 6}};
+
+// 访问二维数组元素
+printf(&quot;第一行第二列的元素: %d\n&quot;, matrix2[0][1]); // 输出 2
+
+// 使用嵌套循环遍历二维数组
+for (int i = 0; i &lt; 2; i++) {
+    for (int j = 0; j &lt; 3; j++) {
+        printf(&quot;%d &quot;, matrix2[i][j]);
+    }
+    printf(&quot;\n&quot;); // 每行结束后换行
+}
+</code></pre>
+<h2 id="有趣的练习题-1"><a class="header" href="#有趣的练习题-1">有趣的练习题</a></h2>
+<ol>
+<li>输入10个整数，输出其中的最大值和最小值。</li>
+<li>输入一组成绩，统计及格人数（成绩≥60）和优秀人数（成绩≥90）。</li>
+<li>输入10个整数，将它们按从大到小的顺序排序并输出。</li>
+<li>输入10个整数，输出所有偶数及其下标。</li>
+<li>定义一个3x3的二维整型数组，输入数据后，计算每行、每列和对角线的和。</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>

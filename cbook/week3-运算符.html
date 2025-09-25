@@ -1,0 +1,432 @@
+<!DOCTYPE HTML>
+<html lang="zh-cn" class="rust" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>运算符 - C 基础教程</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "rust";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('rust')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="home.html"><strong aria-hidden="true">1.</strong> Home</a></li><li class="chapter-item expanded "><div><strong aria-hidden="true">2.</strong> C语言入门</div></li><li><ol class="section"><li class="chapter-item expanded "><a href="week1-学习要求.html"><strong aria-hidden="true">2.1.</strong> 学习介绍</a></li><li class="chapter-item expanded "><a href="week2-输入输出.html"><strong aria-hidden="true">2.2.</strong> 输入输出</a></li><li class="chapter-item expanded "><a href="week3-运算符.html" class="active"><strong aria-hidden="true">2.3.</strong> 运算符</a></li><li class="chapter-item expanded "><a href="week4-条件判断.html"><strong aria-hidden="true">2.4.</strong> 条件判断</a></li><li class="chapter-item expanded "><a href="week5-循环.html"><strong aria-hidden="true">2.5.</strong> 循环</a></li><li class="chapter-item expanded "><a href="week6-数组.html"><strong aria-hidden="true">2.6.</strong> 数组</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">C 基础教程</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="运算符"><a class="header" href="#运算符">运算符</a></h1>
+<p>运算符是C语言中用于执行特定操作的符号。它们可以对一个或多个操作数进行操作，产生一个结果。</p>
+<h2 id="1-算术运算符"><a class="header" href="#1-算术运算符">1. 算术运算符</a></h2>
+<p>用于进行基本的数学计算。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>结果说明</th></tr></thead><tbody>
+<tr><td>+</td><td>加法</td><td>a + b</td><td>两数相加</td></tr>
+<tr><td>-</td><td>减法</td><td>a - b</td><td>两数相减</td></tr>
+<tr><td>*</td><td>乘法</td><td>a * b</td><td>两数相乘</td></tr>
+<tr><td>/</td><td>除法</td><td>a / b</td><td>两数相除（整数除法会截断小数部分）</td></tr>
+<tr><td>%</td><td>取余</td><td>a % b</td><td>两数相除的余数（仅适用于整数）</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 10, b = 3;
+    float x = 10.0f, y = 3.0f;
+    
+    printf(&quot;整数运算:\n&quot;);
+    printf(&quot;  %d + %d = %d\n&quot;, a, b, a + b); // 输出 13
+    printf(&quot;  %d - %d = %d\n&quot;, a, b, a - b); // 输出 7
+    printf(&quot;  %d * %d = %d\n&quot;, a, b, a * b); // 输出 30
+    printf(&quot;  %d / %d = %d (整数除法)\n&quot;, a, b, a / b); // 输出 3
+    printf(&quot;  %d %% %d = %d (取余)\n&quot;, a, b, a % b); // 输出 1
+    
+    printf(&quot;\n浮点数运算:\n&quot;);
+    printf(&quot;  %.1f / %.1f = %.2f (浮点除法)\n&quot;, x, y, x / y); // 输出 3.33
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>整数运算:
+  10 + 3 = 13
+  10 - 3 = 7
+  10 * 3 = 30
+  10 / 3 = 3 (整数除法)
+  10 % 3 = 1 (取余)
+
+浮点数运算:
+  10.0 / 3.0 = 3.33 (浮点除法)
+</code></pre>
+<h2 id="2-关系运算符"><a class="header" href="#2-关系运算符">2. 关系运算符</a></h2>
+<p>用于比较两个值的大小或相等关系，结果为真(非0)或假(0)。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>结果说明</th></tr></thead><tbody>
+<tr><td>&gt;</td><td>大于</td><td>a &gt; b</td><td>如果a大于b则为真</td></tr>
+<tr><td>&lt;</td><td>小于</td><td>a &lt; b</td><td>如果a小于b则为真</td></tr>
+<tr><td>&gt;=</td><td>大于等于</td><td>a &gt;= b</td><td>如果a大于等于b则为真</td></tr>
+<tr><td>&lt;=</td><td>小于等于</td><td>a &lt;= b</td><td>如果a小于等于b则为真</td></tr>
+<tr><td>==</td><td>等于</td><td>a == b</td><td>如果a等于b则为真</td></tr>
+<tr><td>!=</td><td>不等于</td><td>a != b</td><td>如果a不等于b则为真</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 5, b = 8;
+    
+    printf(&quot;关系运算示例:\n&quot;);
+    printf(&quot;  %d &gt; %d 的结果是: %d\n&quot;, a, b, a &gt; b);   // 输出 0 (假)
+    printf(&quot;  %d &lt; %d 的结果是: %d\n&quot;, a, b, a &lt; b);   // 输出 1 (真)
+    printf(&quot;  %d &gt;= %d 的结果是: %d\n&quot;, a, b, a &gt;= b); // 输出 0 (假)
+    printf(&quot;  %d &lt;= %d 的结果是: %d\n&quot;, a, b, a &lt;= b); // 输出 1 (真)
+    printf(&quot;  %d == %d 的结果是: %d\n&quot;, a, b, a == b); // 输出 0 (假)
+    printf(&quot;  %d != %d 的结果是: %d\n&quot;, a, b, a != b); // 输出 1 (真)
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>关系运算示例:
+  5 &gt; 8 的结果是: 0
+  5 &lt; 8 的结果是: 1
+  5 &gt;= 8 的结果是: 0
+  5 &lt;= 8 的结果是: 1
+  5 == 8 的结果是: 0
+  5 != 8 的结果是: 1
+</code></pre>
+<h2 id="3-逻辑运算符"><a class="header" href="#3-逻辑运算符">3. 逻辑运算符</a></h2>
+<p>用于组合或反转布尔表达式，结果为真(非0)或假(0)。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>结果说明</th></tr></thead><tbody>
+<tr><td>&amp;&amp;</td><td>逻辑与</td><td>a &amp;&amp; b</td><td>两个条件都为真时结果才为真</td></tr>
+<tr><td>||</td><td>逻辑或</td><td>a</td><td></td></tr>
+<tr><td>!</td><td>逻辑非</td><td>!a</td><td>反转条件的真假性</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 1, b = 0;
+    int score = 85;
+    
+    printf(&quot;逻辑运算示例:\n&quot;);
+    printf(&quot;  %d &amp;&amp; %d 的结果是: %d\n&quot;, a, b, a &amp;&amp; b); // 输出 0 (假)
+    printf(&quot;  %d || %d 的结果是: %d\n&quot;, a, b, a || b); // 输出 1 (真)
+    printf(&quot;  !%d 的结果是: %d\n&quot;, a, !a);             // 输出 0 (假)
+    
+    // 实际应用示例：判断成绩是否及格
+    if (score &gt;= 60 &amp;&amp; score &lt;= 100) {
+        printf(&quot;  成绩%d分，及格！\n&quot;, score);
+    } else {
+        printf(&quot;  成绩%d分，不及格！\n&quot;, score);
+    }
+    
+    // 判断是否是特殊分数
+    if (score == 100 || score == 0) {
+        printf(&quot;  成绩%d分，是特殊分数！\n&quot;, score);
+    }
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>逻辑运算示例:
+  1 &amp;&amp; 0 的结果是: 0
+  1 || 0 的结果是: 1
+  !1 的结果是: 0
+  成绩85分，及格！
+</code></pre>
+<h2 id="4-赋值运算符"><a class="header" href="#4-赋值运算符">4. 赋值运算符</a></h2>
+<p>用于给变量赋值或进行复合赋值操作。</p>
+<div class="table-wrapper"><table><thead><tr><th>运算符</th><th>说明</th><th>示例</th><th>等价于</th></tr></thead><tbody>
+<tr><td>=</td><td>赋值</td><td>a = b</td><td>将b的值赋给a</td></tr>
+<tr><td>+=</td><td>加后赋值</td><td>a += b</td><td>a = a + b</td></tr>
+<tr><td>-=</td><td>减后赋值</td><td>a -= b</td><td>a = a - b</td></tr>
+<tr><td>*=</td><td>乘后赋值</td><td>a *= b</td><td>a = a * b</td></tr>
+<tr><td>/=</td><td>除后赋值</td><td>a /= b</td><td>a = a / b</td></tr>
+<tr><td>%=</td><td>取余后赋值</td><td>a %= b</td><td>a = a % b</td></tr>
+</tbody></table>
+</div>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 5;
+    
+    printf(&quot;赋值运算示例:\n&quot;);
+    printf(&quot;  初始值 a = %d\n&quot;, a);
+    
+    a += 3; // 等价于 a = a + 3;
+    printf(&quot;  a += 3 后 a = %d\n&quot;, a); // 输出 8
+    
+    a *= 2; // 等价于 a = a * 2;
+    printf(&quot;  a *= 2 后 a = %d\n&quot;, a); // 输出 16
+    
+    a -= 6; // 等价于 a = a - 6;
+    printf(&quot;  a -= 6 后 a = %d\n&quot;, a); // 输出 10
+    
+    a /= 2; // 等价于 a = a / 2;
+    printf(&quot;  a /= 2 后 a = %d\n&quot;, a); // 输出 5
+    
+    a %= 3; // 等价于 a = a % 3;
+    printf(&quot;  a %%= 3 后 a = %d\n&quot;, a); // 输出 2
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>赋值运算示例:
+  初始值 a = 5
+  a += 3 后 a = 8
+  a *= 2 后 a = 16
+  a -= 6 后 a = 10
+  a /= 2 后 a = 5
+  a %= 3 后 a = 2
+</code></pre>
+<h2 id="运算符优先级"><a class="header" href="#运算符优先级">运算符优先级</a></h2>
+<p>当一个表达式中包含多个运算符时，它们按照一定的优先级顺序进行计算。以下是一些常见运算符的优先级（从高到低）：</p>
+<ol>
+<li><code>()</code>           括号</li>
+<li><code>!</code> <code>*</code> <code>/</code> <code>%</code> 逻辑非、乘、除、取余</li>
+<li><code>+</code> <code>-</code>        加、减</li>
+<li><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code> 关系运算符</li>
+<li><code>==</code> <code>!=</code>      相等运算符</li>
+<li><code>&amp;&amp;</code>           逻辑与</li>
+<li><code>||</code>           逻辑或</li>
+<li><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code> 赋值运算符</li>
+</ol>
+<p><strong>示例：</strong></p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main() {
+    int a = 5, b = 3, c = 2;
+    int result;
+    
+    // 演示运算符优先级
+    result = a + b * c;     // 先算乘法，再算加法
+    printf(&quot;a + b * c = %d\n&quot;, result); // 输出 11
+    
+    result = (a + b) * c;   // 先算括号内的加法，再算乘法
+    printf(&quot;(a + b) * c = %d\n&quot;, result); // 输出 16
+    
+    // 复杂表达式示例
+    result = a &gt; b &amp;&amp; b &gt; c; // 先算关系运算，再算逻辑运算
+    printf(&quot;a &gt; b &amp;&amp; b &gt; c 的结果是: %d\n&quot;, result); // 输出 1 (真)
+    
+    return 0;
+}
+</code></pre>
+<p><strong>输出结果:</strong></p>
+<pre><code>a + b * c = 11
+(a + b) * c = 16
+a &gt; b &amp;&amp; b &gt; c 的结果是: 1
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="week2-输入输出.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="week4-条件判断.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="week2-输入输出.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="week4-条件判断.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

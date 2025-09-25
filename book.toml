@@ -1,0 +1,17 @@
+[book]
+authors = ["zxy"]
+language = "zh-cn"
+multilingual = false
+src = "src"
+title = "C 基础教程"
+
+[build]
+build-dir = "cbook"
+create-missing = false
+
+[output.html.print]
+enable = true
+
+[output.html]
+site-url = "/cbook/"
+default-theme = "rust"
